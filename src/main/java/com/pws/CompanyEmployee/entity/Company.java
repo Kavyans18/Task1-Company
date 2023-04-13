@@ -1,14 +1,18 @@
 package com.pws.CompanyEmployee.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 @Entity
 @Data
+@Validated
 @Table(name = "company")
 public class Company {
     @Id
@@ -24,5 +28,8 @@ public class Company {
     private String email;
     @Column(name = "phone_number", nullable = false, unique = true)
     @Pattern(regexp = "[0-9]{10}", message = "Phone number must be 10 digits")
-    private long phoneNumber;
+    private String phoneNumber;
+    @ManyToMany(mappedBy = "companies", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Employee> employees;
 }
