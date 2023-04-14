@@ -1,7 +1,9 @@
 package com.pws.CompanyEmployee.service;
 
 import com.pws.CompanyEmployee.entity.Employee;
+import org.springframework.data.domain.Page;
 
+import java.util.Date;
 import java.util.List;
 
 public interface EmployeeService {
@@ -16,18 +18,15 @@ public interface EmployeeService {
 
     void deleteEmployee(int id);
 
-    List<String>sortAndLength();
+    List<Employee>sortAndLength();
 
-    List<String> fetchWithAlphabet(String alphabet);
+    Page<Employee> sortSalary (int number);
 
-    Employee sortSalary (int number);
-
-    List<Employee> salaryGreaterThan(double number);
-
-    List<Employee> salaryLesserThan(double salary);
-
-    List<Employee> salaryEquals(double salary);
+    List<Employee> compareSalary(double salary, String value);
 
     List<Employee>byMonth(int month);
+
+    List<Employee> byAlphabet(char ch);
+
 
 }

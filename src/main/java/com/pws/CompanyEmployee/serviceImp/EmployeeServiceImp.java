@@ -1,19 +1,24 @@
 package com.pws.CompanyEmployee.serviceImp;
 
-import com.pws.CompanyEmployee.entity.Company;
 import com.pws.CompanyEmployee.entity.Employee;
 import com.pws.CompanyEmployee.exception.IdNotFoundException;
+import com.pws.CompanyEmployee.exception.InvalidEntryException;
 import com.pws.CompanyEmployee.exception.NoDataAvailableException;
-import com.pws.CompanyEmployee.repository.CompanyRepository;
 import com.pws.CompanyEmployee.repository.EmployeeRepository;
-import com.pws.CompanyEmployee.service.CompanyService;
 import com.pws.CompanyEmployee.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.ScopeMetadata;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.filter.OncePerRequestFilter;
 
+import java.security.PublicKey;
+import java.time.Month;
 import java.util.*;
+
+
 import java.util.stream.Collectors;
 
 @Service
@@ -41,7 +46,6 @@ public class EmployeeServiceImp implements EmployeeService {
         emp.setDob(employee.getDob());
         emp.setPincode(employee.getPincode());
         emp.setSalary(employee.getSalary());
-        emp.setCompanies(employee.getCompanies());
         repository.save(emp);
         return emp;
     }
@@ -73,55 +77,49 @@ public class EmployeeServiceImp implements EmployeeService {
         repository.delete(optional.get());
     }
 
+    public List<Employee> sortAndLength() {
+        List<Employee> emp = repository.findAll(Sort.by(Sort.Direction.ASC,"name"));
+        return emp;
+    }
+
     @Override
-    public List<String> sortAndLength() {
-        List<Employee> employees = repository.findAll();
-        Iterator<Employee> iterator = employees.iterator();
-        List<String> str = new ArrayList<>();
-        while(iterator.hasNext()){
-            str.add(iterator.next().getName());
+    public Page<Employee> sortSalary(int number) {
+        Page<Employee> employees = repository.findAll(PageRequest.of(number, 1).withSort(Sort.by(Sort.Direction.DESC,"salary")));
+        return employees;
+    }
+
+    public List<Employee> compareSalary(double salary, String value){
+        if (value == ">") {
+            List<Employee> emp = repository.salaryGreaterThan(salary);
+            return emp;
+        } else if (value == "<") {
+            List<Employee> emp2 = repository.salaryLessThan(salary);
+            return emp2;
+        } else if (value == "=") {
+            List<Employee> emp3 =repository.salaryEqual(salary);
+            return emp3;
+        } else {
+            throw new InvalidEntryException("Invalid input");
         }
-        Collections.sort(str, Comparator.comparingInt(String::length));
-        return str;
-    }
-
-    @Override
-    public List<String> fetchWithAlphabet(String alphabet){
-        List<String> names = sortAndLength();
-        alphabet.toUpperCase();
-        names = names.stream().filter(s->s.startsWith(alphabet)).collect(Collectors.toList());
-        return names;
-    }
-
-    @Override
-    public Employee sortSalary(int number) {
-        List<Employee>employees = repository.findAll();
-        Optional<Employee> emp = employees.stream()
-                .sorted(Comparator.comparingDouble(Employee::getSalary).reversed()).skip(number-1).findFirst();
-        return emp.get();
-    }
-
-    @Override
-    public List<Employee> salaryGreaterThan(double salary) {
-        List<Employee> employees = repository.salaryGreaterThan(salary);
-        return employees;
-    }
-
-    @Override
-    public List<Employee> salaryLesserThan(double salary){
-        List<Employee> employees = repository.salaryLessThan(salary);
-        return employees;
-    }
-
-    @Override
-    public List<Employee> salaryEquals(double salary) {
-        List<Employee>employees = repository.salaryEqual(salary);
-        return employees;
     }
 
     @Override
     public List<Employee> byMonth(int month) {
-        List<Employee> employees = repository.byMonth(month);
-        return employees;
+        List<Employee> employees = repository.findAll();
+        Iterator<Employee> iterator = employees.iterator();
+        List<Employee> employee = new ArrayList<>();
+        while (iterator.hasNext()){
+            Employee e = iterator.next();
+            int mon = e.getDob().getMonth();
+            if(mon == month){
+                employee.add(e);
+            }
+        }
+        return employee;
+    }
+
+    public List<Employee> byAlphabet(char ch){
+        List<Employee> emp = repository.byAlphabet(ch);
+        return emp;
     }
 }

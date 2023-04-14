@@ -38,7 +38,7 @@ public class CompanyServiceImp implements CompanyService {
         comp.setEmail(company.getEmail());
         comp.setPhoneNumber(company.getPhoneNumber());
         comp.setAddress(company.getAddress());
-        comp.setEmployees(company.getEmployees());
+        //comp.setEmployee(company.getEmployee());
         repository.save(comp);
         return comp;
     }

@@ -1,12 +1,16 @@
 package com.pws.CompanyEmployee.controller;
 
 import com.pws.CompanyEmployee.entity.Employee;
+import com.pws.CompanyEmployee.exception.InvalidEntryException;
 import com.pws.CompanyEmployee.service.EmployeeService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -47,44 +51,26 @@ public class EmployeeController {
     }
 
     @GetMapping("/sort")
-    public ResponseEntity<List<String>> sortAndLength() {
-        List<String> str = service.sortAndLength();
-        return new ResponseEntity<>(str, HttpStatus.OK);
-    }
-
-    @GetMapping("/alphabet/{alphabet}")
-    public ResponseEntity<List<String>> fetchWithAlphabet(@PathVariable String alphabet) {
-        List<String> names = service.fetchWithAlphabet(alphabet);
-        return new ResponseEntity<>(names, HttpStatus.OK);
-    }
-
-    @GetMapping("/sal/{num}")
-    public ResponseEntity<Employee> sortSalary(@PathVariable int num) {
-        Employee emp = service.sortSalary(num);
+    public ResponseEntity<List<Employee>> sortAndLength() {
+        List<Employee> emp = service.sortAndLength();
         return new ResponseEntity<>(emp, HttpStatus.OK);
     }
 
-    @GetMapping("/greater/{salary}")
-    public ResponseEntity<List<Employee>> salaryGreaterThan(@PathVariable double salary) {
-        List<Employee> employees = service.salaryGreaterThan(salary);
-        return new ResponseEntity<>(employees, HttpStatus.OK);
-    }
-
-    @GetMapping("lesser/{salary}")
-    public ResponseEntity<List<Employee>> salaryLesserThan(@PathVariable double salary) {
-        List<Employee> employees = service.salaryLesserThan(salary);
-        return new ResponseEntity<>(employees, HttpStatus.OK);
-    }
-
-    @GetMapping("/equals/{salary}")
-    public ResponseEntity<List<Employee>> salaryEqualsTo(@PathVariable double salary) {
-        List<Employee> employees = service.salaryEquals(salary);
+    @GetMapping("compare/{salary}/{value}")
+    public ResponseEntity<List<Employee>> salaryCompare(@PathVariable double salary,@PathVariable String value) {
+        List<Employee> employees = service.compareSalary(salary, value);
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
 
     @GetMapping("/month/{month}")
-    public ResponseEntity<List<Employee>> byMonth(@PathVariable int month){
+    public ResponseEntity<List<Employee>> byMonth(@PathVariable int month) {
         List<Employee> employees = service.byMonth(month);
         return new ResponseEntity<>(employees, HttpStatus.OK);
+    }
+
+    @GetMapping("/ch/{ch}")
+    public ResponseEntity<List<Employee>> byAlphabet(@PathVariable char ch) {
+        List<Employee> emp = service.byAlphabet(ch);
+        return new ResponseEntity<>(emp, HttpStatus.OK);
     }
 }
